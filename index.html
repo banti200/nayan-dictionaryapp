@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nayankumar Dictionary</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #043866, #00f2fe);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 15px;
+      padding: 25px;
+      width: 100%;
+      max-width: 550px;
+      color: #fff;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      margin-bottom: 15px;
+      font-size: 26px;
+      color: #0a0009;
+    }
+
+    input {
+      padding: 12px;
+      width: 75%;
+      border: none;
+      border-radius: 25px;
+      outline: none;
+      font-size: 15px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .buttons { margin-bottom: 20px; }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 20px;
+      margin: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #ff9800;
+      color: white;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #e67e00;
+      transform: scale(1.05);
+    }
+
+    #result {
+      text-align: left;
+      margin-top: 15px;
+      line-height: 1.6;
+      font-size: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    audio { margin-top: 10px; display: block; }
+
+    footer {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #ddd;
+    }
+
+    @media(max-width: 600px) {
+      input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📖 Nayankumar Dictionary</h1>
+    <input type="text" id="wordInput" placeholder="Enter a word...">
+    <div class="buttons">
+      <button onclick="getDefinition()">Search</button>
+      <button onclick="resetApp()">Reset</button>
+    </div>
+    <div id="result">Type a word and press Search 🔍</div>
+    <footer>Made with ❤️ by Nayankumar</footer>
+  </div>
+
+  <script>
+    // Function to fetch and display dictionary data
+    async function getDefinition() {
+      const word = document.getElementById("wordInput").value.trim();
+      const resultDiv = document.getElementById("result");
+
+      if (!word) {
+        resultDiv.innerHTML = "⚠ Please enter a word.";
+        return;
+      }
+
+      try {
+        const url = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.title === "No Definitions Found") {
+          resultDiv.innerHTML = "❌ No definitions found.";
+          return;
+        }
+
+        let output = `<p><b>Word:</b> ${word}</p>`;
+
+        // 🔊 Add phonetics + audio
+        if (data[0].phonetics && data[0].phonetics.length > 0) {
+          const phoneticText = data[0].phonetics.find(p => p.text)?.text || "";
+          const audioUrl = data[0].phonetics.find(p => p.audio)?.audio || "";
+          if (phoneticText) output += `<p><b>Phonetics:</b> ${phoneticText}</p>`;
+          if (audioUrl) output += `<audio controls src="${audioUrl}"></audio>`;
+        }
+
+        // Show all meanings with examples
+        output += "<h3>Meanings:</h3>";
+        data[0].meanings.forEach((m, idx) => {
+          output += `<p><b>${idx+1}. Part of Speech:</b> ${m.partOfSpeech}</p>`;
+          m.definitions.forEach((d, i) => {
+            output += `<p>- ${d.definition}</p>`;
+            if (d.example) {
+              output += `<p><i>Example:</i> ${d.example}</p>`;
+            }
+          });
+        });
+
+        resultDiv.innerHTML = output;
+      } catch (error) {
+        console.error(error);
+        resultDiv.innerHTML = "❌ Error fetching data. Please try again.";
+      }
+    }
+
+    // Reset function
+    function resetApp() {
+      document.getElementById("wordInput").value = "";
+      document.getElementById("result").innerHTML = "Type a word and press Search 🔍";
+    }
+  </script>
+</body>
+</html>
