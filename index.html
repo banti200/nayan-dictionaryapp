@@ -3,117 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nayankumar Dictionary</title>
+  <title>Nayankumar Dictionary App</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #043866, #00f2fe);
-      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4b6cb7, #182848);
+      color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.1);
       padding: 20px;
-    }
-
-    .container {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
       border-radius: 15px;
-      padding: 25px;
-      width: 100%;
-      max-width: 550px;
-      color: #fff;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
       text-align: center;
-      animation: fadeIn 1s ease-in-out;
+      width: 350px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    h1 {
-      margin-bottom: 15px;
-      font-size: 26px;
-      color: #0a0009;
-    }
-
     input {
-      padding: 12px;
-      width: 75%;
+      padding: 10px;
+      width: 90%;
       border: none;
-      border-radius: 25px;
-      outline: none;
-      font-size: 15px;
-      margin-bottom: 15px;
+      border-radius: 8px;
+      margin: 8px 0;
       text-align: center;
     }
-
-    .buttons { margin-bottom: 20px; }
-
     button {
       padding: 10px 20px;
       border: none;
-      border-radius: 20px;
-      margin: 5px;
-      font-size: 14px;
+      border-radius: 8px;
+      background: #e08b0a;
+      color: #fff;
       cursor: pointer;
-      background: #ff9800;
-      color: white;
-      transition: 0.3s;
+      margin-top: 10px;
     }
-
-    button:hover {
-      background: #e67e00;
-      transform: scale(1.05);
-    }
-
-    #result {
-      text-align: left;
-      margin-top: 15px;
-      line-height: 1.6;
-      font-size: 15px;
-      max-height: 300px;
-      overflow-y: auto;
-      padding-right: 5px;
-    }
-
-    audio { margin-top: 10px; display: block; }
-
-    footer {
-      margin-top: 20px;
-      font-size: 13px;
-      color: #ddd;
-    }
-
-    @media(max-width: 600px) {
-      input { width: 100%; }
-    }
+    button:hover { background: #e67e00; }
+    #result { margin-top: 15px; text-align: left; }
+    footer { margin-top: 10px; font-size: 12px; color: #ddd; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📖 Nayankumar Dictionary</h1>
-    <input type="text" id="wordInput" placeholder="Enter a word...">
-    <div class="buttons">
-      <button onclick="getDefinition()">Search</button>
-      <button onclick="resetApp()">Reset</button>
-    </div>
-    <div id="result">Type a word and press Search 🔍</div>
+  <!-- Signup Page -->
+  <div class="card" id="signupPage">
+    <h2>🔑 Sign Up</h2>
+    <input type="text" id="name" placeholder="Enter your Name"><br>
+    <input type="text" id="qualification" placeholder="Enter Qualification"><br>
+    <input type="email" id="email" placeholder="Enter Email"><br>
+    <button onclick="signUp()">Sign Up</button>
+    <p id="signupMsg"></p>
+    <footer>🔒 Your details are confidential</footer>
+  </div>
+
+  <!-- Login Page -->
+  <div class="card" id="loginPage" style="display:none;">
+    <h2>🔐 Login</h2>
+    <input type="email" id="loginEmail" placeholder="Enter Email"><br>
+    <input type="password" id="accessCode" placeholder="Enter Access Code"><br>
+    <button onclick="login()">Login</button>
+    <p id="loginMsg"></p>
+  </div>
+
+  <!-- Dictionary Page -->
+  <div class="card" id="dictionaryPage" style="display:none;">
+    <h2>📖 Nayankumar Dictionary</h2>
+    <input type="text" id="word" placeholder="Enter a word">
+    <button onclick="getDefinition()">Search</button>
+    <button onclick="resetDict()">Reset</button>
+    <button onclick="exitApp()">Exit</button>
+    <div id="result"></div>
     <footer>Made with ❤️ by Nayankumar</footer>
   </div>
 
   <script>
-    // Function to fetch and display dictionary data
+    const ACCESS_CODE = "9999"; // same for all users
+
+    function signUp() {
+      let name = document.getElementById("name").value.trim();
+      let qualification = document.getElementById("qualification").value.trim();
+      let email = document.getElementById("email").value.trim();
+      let msg = document.getElementById("signupMsg");
+
+      if (!/^[a-zA-Z ]+$/.test(name)) {
+        msg.innerHTML = "⚠ Enter a valid name (letters only)";
+        return;
+      }
+      if (!qualification) {
+        msg.innerHTML = "⚠ Qualification required";
+        return;
+      }
+      if (!/^[^ ]+@[^ ]+\.[a-z]{2,3}$/.test(email)) {
+        msg.innerHTML = "⚠ Enter a valid email";
+        return;
+      }
+
+      localStorage.setItem("userEmail", email);
+      msg.innerHTML = `✅ Registered! Use Access Code: <b>${ACCESS_CODE}</b> to login.`;
+
+      setTimeout(() => {
+        document.getElementById("signupPage").style.display = "none";
+        document.getElementById("loginPage").style.display = "block";
+      }, 2000);
+    }
+
+    function login() {
+      let loginEmail = document.getElementById("loginEmail").value.trim();
+      let accessCode = document.getElementById("accessCode").value.trim();
+      let storedEmail = localStorage.getItem("userEmail");
+      let msg = document.getElementById("loginMsg");
+
+      if (loginEmail === storedEmail && accessCode === ACCESS_CODE) {
+        msg.innerHTML = "✅ Login Successful!";
+        setTimeout(() => {
+          document.getElementById("loginPage").style.display = "none";
+          document.getElementById("dictionaryPage").style.display = "block";
+        }, 1000);
+      } else {
+        msg.innerHTML = "❌ Invalid Email or Access Code!";
+      }
+    }
+
     async function getDefinition() {
-      const word = document.getElementById("wordInput").value.trim();
+      const word = document.getElementById("word").value.trim();
       const resultDiv = document.getElementById("result");
 
       if (!word) {
-        resultDiv.innerHTML = "⚠ Please enter a word.";
+        resultDiv.innerHTML = "⚠ Please enter a word!";
         return;
       }
 
@@ -122,44 +139,41 @@
         const response = await fetch(url);
         const data = await response.json();
 
-        if (data.title === "No Definitions Found") {
-          resultDiv.innerHTML = "❌ No definitions found.";
-          return;
+        if (data[0]) {
+          let meaning = data[0].meanings[0].definitions[0].definition;
+          let example = data[0].meanings[0].definitions[0].example || "No example available";
+          let phonetic = data[0].phonetics[0]?.text || "Not available";
+          let audio = data[0].phonetics.find(p => p.audio) ? data[0].phonetics.find(p => p.audio).audio : "";
+
+          resultDiv.innerHTML = `
+            <div><b>Word:</b> ${word}</div>
+            <div><b>Pronunciation:</b> ${phonetic} ${audio ? `<button onclick="playAudio('${audio}')">🔊</button>` : ""}</div>
+            <div><b>Meaning:</b> ${meaning}</div>
+            <div><b>Example:</b> ${example}</div>
+          `;
+        } else {
+          resultDiv.innerHTML = "❌ Word not found!";
         }
-
-        let output = `<p><b>Word:</b> ${word}</p>`;
-
-        // 🔊 Add phonetics + audio
-        if (data[0].phonetics && data[0].phonetics.length > 0) {
-          const phoneticText = data[0].phonetics.find(p => p.text)?.text || "";
-          const audioUrl = data[0].phonetics.find(p => p.audio)?.audio || "";
-          if (phoneticText) output += `<p><b>Phonetics:</b> ${phoneticText}</p>`;
-          if (audioUrl) output += `<audio controls src="${audioUrl}"></audio>`;
-        }
-
-        // Show all meanings with examples
-        output += "<h3>Meanings:</h3>";
-        data[0].meanings.forEach((m, idx) => {
-          output += `<p><b>${idx+1}. Part of Speech:</b> ${m.partOfSpeech}</p>`;
-          m.definitions.forEach((d, i) => {
-            output += `<p>- ${d.definition}</p>`;
-            if (d.example) {
-              output += `<p><i>Example:</i> ${d.example}</p>`;
-            }
-          });
-        });
-
-        resultDiv.innerHTML = output;
-      } catch (error) {
-        console.error(error);
-        resultDiv.innerHTML = "❌ Error fetching data. Please try again.";
+      } catch {
+        resultDiv.innerHTML = "❌ Error fetching definition.";
       }
     }
 
-    // Reset function
-    function resetApp() {
-      document.getElementById("wordInput").value = "";
-      document.getElementById("result").innerHTML = "Type a word and press Search 🔍";
+    function playAudio(audioUrl) {
+      let audio = new Audio(audioUrl);
+      audio.play();
+    }
+
+    function resetDict() {
+      document.getElementById("word").value = "";
+      document.getElementById("result").innerHTML = "";
+    }
+
+    function exitApp() {
+      localStorage.clear();
+      alert("👋 You have exited the app. Stay safe, your data is cleared.");
+      document.getElementById("dictionaryPage").style.display = "none";
+      document.getElementById("signupPage").style.display = "block";
     }
   </script>
 </body>
